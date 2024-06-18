@@ -20,4 +20,10 @@ export class AppController {
   getProfile(@Request() req) {
     return req.user;
   }
+
+  @Public()
+  @Get()
+  async getHelloWorld() {
+    return "Hello World!";
+  }
 }
