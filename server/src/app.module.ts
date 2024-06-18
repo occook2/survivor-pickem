@@ -13,16 +13,18 @@ import { User } from './users/entities/user.entity';
   imports: [
     UsersModule, 
     AuthModule, 
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'root',
-      database: 'test',
-      entities: [ User ],
-      autoLoadEntities: true,
-      synchronize: true, // TODO: This should not be set to true, otherwise production data can be lost
+    TypeOrmModule.forRootAsync({
+      useFactory: () => ({
+        type: process.env.NODE_ENV === 'test' ? 'sqlite' : 'mysql',
+        database: process.env.NODE_ENV === 'test' ? ':memory:' : 'test',
+        host: process.env.NODE_ENV === 'test' ? undefined : 'localhost',
+        port: process.env.NODE_ENV === 'test' ? undefined : 3306,
+        username: process.env.NODE_ENV === 'test' ? undefined : 'root',
+        password: process.env.NODE_ENV === 'test' ? undefined : 'root',
+        entities: [User],
+        synchronize: true,
+        autoLoadEntities: true,
+      }),
     }),
   ],
 })
