@@ -1,16 +1,37 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AuthService } from './auth/auth.service';
+import { UsersController } from './users/users.controller';
+import { UsersService } from './users/users.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from './users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
 
-describe('AppController', () => {
-  let appController: AppController;
+describe('AuthService', () => {
+  let authService: AuthService;
+  let usersService: UsersService;
+  let jwtService: JwtService;
+  let repository: Repository<User>;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+    const moduleRef: TestingModule = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        UsersService,
+        JwtService,
+        {
+          provide: getRepositoryToken(User),
+          useClass: Repository, // This will provide the repository as a mock
+        },
+      ],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    authService = moduleRef.get<AuthService>(AuthService);
+    usersService = moduleRef.get<UsersService>(UsersService);
+    jwtService = moduleRef.get<JwtService>(JwtService);
+  });
+
+  it('should be defined', () => {
+    expect(authService).toBeDefined();
   });
 });

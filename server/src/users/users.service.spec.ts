@@ -44,7 +44,7 @@ describe('UsersService', () => {
   });
 
   it('should create a user', async () => {
-    const createUserDto = { username: 'john', password: 'changeme' };
+    const createUserDto = { username: 'jane', password: 'password' };
     const user = await service.create(createUserDto);
     expect(user).toEqual({ id: 1, ...createUserDto });
   });
