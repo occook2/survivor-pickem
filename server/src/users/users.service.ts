@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
-// import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
   // TODO: Remove hardcoded users table
   private readonly users = [
@@ -19,27 +26,30 @@ export class UsersService {
     },
   ];
 
-  async findOne(username: string) {
-    return this.users.find(user => user.username === username);
+  // findOne function that works on a static table
+  // async findOne(username: string) {
+  //   return this.users.find(user => user.username === username);
+  // }
+
+  findOne(userName: string): Promise<User | null> {
+    return this.usersRepository.findOneBy({ userName });
   }
 
-  // create(createUserDto: CreateUserDto) {
-  //   return 'This action adds a new user';
-  // }
+  findAll(): Promise<User[]> {
+    return this.usersRepository.find();
+  }
 
-  // findAll() {
-  //   return `This action returns all users`;
-  // }
+  async remove(id: number): Promise<void> {
+    await this.usersRepository.delete(id);
+  }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
+  async create(createUserDto: CreateUserDto) {
+    const user = this.usersRepository.create(createUserDto);
+    return this.usersRepository.save(user);
+  }
 
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
+  async update(userName: string, updateUserDto: UpdateUserDto): Promise<User> {
+    await this.usersRepository.update(userName, updateUserDto);
+    return this.usersRepository.findOne({ where: {userName }});
+  }
 }
