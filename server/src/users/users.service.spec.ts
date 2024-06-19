@@ -30,7 +30,7 @@ describe('UsersService', () => {
       if (criteria.where.id === 1) {
         return {
           id: 1,
-          username: 'john',
+          userName: 'john',
           password: 'changeme',
           ...criteria.where,
         } as User;
@@ -39,25 +39,44 @@ describe('UsersService', () => {
     });
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  describe('definition', () => { 
+    it('should be defined', () => {
+      expect(service).toBeDefined();
+    });
   });
 
-  it('should create a user', async () => {
-    const createUserDto = { username: 'jane', password: 'password' };
-    const user = await service.create(createUserDto);
-    expect(user).toEqual({ id: 1, ...createUserDto });
+  describe('findOne', () => {
+    it('should find user', async () => {
+      const user = await service.findOne(1);
+      expect(user).toEqual({id: 1, userName: 'john', password: 'changeme'});
+    });
+    it('should return null if user does not exist', async () => {
+      const user = await service.findOne(999);
+      expect(user).toBeNull();
+    });
   });
 
-  it('should update a user', async () => {
-    const updateUserDto = { password: 'changed' };
-    const user = await service.update(1, updateUserDto);
-    expect(user).toEqual({ id: 1, username: 'john', password: 'changed' });
+  describe('create', () => {
+    it('should create a user', async () => {
+      const createUserDto = { userName: 'jane', password: 'password' };
+      const user = await service.create(createUserDto);
+      expect(user).toEqual({ id: 1, ...createUserDto });
+    });
   });
 
-  it('should throw an error if the user is not found during update', async () => {
-    const updateUserDto = { password: 'changed' };
-    await expect(service.update(999, updateUserDto)).rejects.toThrow('User with ID 999 not found');
-  });
+
+  describe('update', () => {
+    it('should update a user', async () => {
+      const updateUserDto = { password: 'changed' };
+      const user = await service.update(1, updateUserDto);
+      expect(user).toEqual({ id: 1, userName: 'john', password: 'changed' });
+    });
+  
+    it('should throw an error if the user is not found during update', async () => {
+      const updateUserDto = { password: 'changed' };
+      await expect(service.update(999, updateUserDto)).rejects.toThrow('User with ID 999 not found');
+    });
+  })
+  
 });
 
