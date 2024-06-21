@@ -77,26 +77,48 @@ describe('AppController (e2e)', () => {
       .send({ userName: 'john', password: 'testpass'})
       .expect(201);
 
+      await request(app.getHttpServer())
+      .post('/users')
+      .send({ userName: 'jane', password: 'testpassword'})
+      .expect(201);
+
     // Step 2: Attempt Profile API without logging in, expect Unauthorized Exception
     request(app.getHttpServer())
       .get('/auth/profile')
       .set('Authorization', `Bearer NotAValidToken`)
       .expect(401);
     
-    // Step 3: Login with credentials of created user
+    // Step 3: Login with credentials of created users
     const loginResponse = await request(app.getHttpServer())
       .post('/auth/login')
       .send({ userName: 'john', password: 'testpass'})
       .expect(201);
 
-    // Step 4: Use JWT Token to use profile API
+    const secondLoginResponse = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ userName: 'jane', password: 'testpassword'})
+      .expect(201);
+
+    // Step 4: Use JWT Tokens to use profile API
     jwtToken = loginResponse.body.access_token;
-    return request(app.getHttpServer())
+    const jwtToken2 = secondLoginResponse.body.access_token;
+
+    expect(jwtToken).not.toEqual(jwtToken2);
+
+    request(app.getHttpServer())
       .get('/auth/profile')
       .set('Authorization', `Bearer ${jwtToken}`)
       .expect(200)
       .then((response) => {
         expect(response.body).toHaveProperty('userName', 'john');
+      });
+
+    return request(app.getHttpServer())
+      .get('/auth/profile')
+      .set('Authorization', `Bearer ${jwtToken2}`)
+      .expect(200)
+      .then((response) => {
+        expect(response.body).toHaveProperty('userName', 'jane');
       });
   });
 });
