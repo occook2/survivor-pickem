@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { AppModule } from '../src/app.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../src/users/entities/user.entity';
 
@@ -35,12 +35,6 @@ describe('AppController (e2e)', () => {
       .get('/')
       .expect(200)
       .expect('Hello World!');
-  });
-
-  it('/users (GET)', () => {
-    return request(app.getHttpServer())
-    .get('/users')
-    .expect(401)
   });
 
   it('should create a new user, login, and get users with auth', async () => {

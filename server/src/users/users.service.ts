@@ -31,16 +31,21 @@ export class UsersService {
   //   return this.users.find(user => user.username === username);
   // }
 
-  findOne(id: number): Promise<User | null> {
-    return this.usersRepository.findOne({where: {id}});
+  async findOne(id: number): Promise<User | null> {
+    const user = await this.usersRepository.findOne({where: {id}});
+    console.log('User found is: ', user);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
-  findByUsername(username: string): Promise<User | null> {
-    return this.usersRepository.findOne({where: {userName: username}});
+  async findByUsername(username: string): Promise<User | null> {
+    return await this.usersRepository.findOne({where: {userName: username}});
   } 
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
   }
 
   async remove(id: number): Promise<void> {
@@ -52,8 +57,8 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto) {
-    const user = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(user);
+    const user = await this.usersRepository.create(createUserDto);
+    return await this.usersRepository.save(user);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {

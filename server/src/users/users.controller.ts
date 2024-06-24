@@ -12,26 +12,27 @@ export class UsersController {
   @Public()
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.create(createUserDto);
+    return await this.usersService.create(createUserDto);
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAll() {
+    return await this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.usersService.findOne(id);
+  async findOne(@Param('id') id: number) {
+    return await this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: number) {
+    await this.usersService.remove(+id);
+    return { message: `User with ID ${id} successfully deleted` }; // Return a response
   }
 }
