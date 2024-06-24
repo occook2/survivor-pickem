@@ -1,9 +1,16 @@
-import { Injectable } from '@nestjs/common';
-// import { CreateUserDto } from './dto/create-user.dto';
-// import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
   // TODO: Remove hardcoded users table
   private readonly users = [
@@ -19,27 +26,50 @@ export class UsersService {
     },
   ];
 
-  async findOne(username: string) {
-    return this.users.find(user => user.username === username);
+  // findOne function that works on a static table
+  // async findOne(username: string) {
+  //   return this.users.find(user => user.username === username);
+  // }
+
+  async findOne(id: number): Promise<User | null> {
+    const user = await this.usersRepository.findOne({where: {id}});
+    console.log('User found is: ', user);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
   }
 
-  // create(createUserDto: CreateUserDto) {
-  //   return 'This action adds a new user';
-  // }
+  async findByUsername(username: string): Promise<User | null> {
+    return await this.usersRepository.findOne({where: {userName: username}});
+  } 
 
-  // findAll() {
-  //   return `This action returns all users`;
-  // }
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
+  }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} user`;
-  // }
+  async remove(id: number): Promise<void> {
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    await this.usersRepository.delete(id);
+  }
 
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
+  async create(createUserDto: CreateUserDto) {
+    const user = await this.usersRepository.create(createUserDto);
+    return await this.usersRepository.save(user);
+  }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this.findOne(id);
+    
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+
+    Object.assign(user, updateUserDto);
+
+    return await this.usersRepository.save(user);
+  }
 }

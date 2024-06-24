@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { AuthController } from './auth.controller';
 
 @Module({
   imports: [
@@ -15,8 +16,9 @@ import { JwtAuthGuard } from './jwt-auth.guard';
     PassportModule, 
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '120s'}, // Increase time for active JWT. Do additional research to determine timing (not in the scope of Nest documentation)
+      signOptions: { expiresIn: '60m'}, // Increase time for active JWT. Do additional research to determine timing (not in the scope of Nest documentation)
     })],
+  controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy, 
     {
       provide: APP_GUARD,

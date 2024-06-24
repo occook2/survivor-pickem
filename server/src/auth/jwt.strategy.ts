@@ -19,6 +19,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         Further business logic can be added to check if this userId has had access revoked, etc. to further 
         security within the production website
     */
-    return { userId: payload.sub, username: payload.username };
+        return { userId: payload.sub, userName: payload.username };
   }
 }
